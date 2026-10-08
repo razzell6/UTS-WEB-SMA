@@ -10,6 +10,7 @@ const menu = [
   { label: "About", href: "/about" },
   { label: "Guru", href: "/guru" },
   { label: "Ekstrakurikuler", href: "/ekstrakurikuler" },
+  { label: "Prestasi", href: "/prestasi" },
   { label: "Berita", href: "/berita" },
 ];
 
