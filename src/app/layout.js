@@ -3,8 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "SMA Negeri Temanggung",
-  description: "Website Resmi SMA Negeri Temanggung",
+  title: "SMA Negeri 1 Temanggung",
+  description: "Website Resmi SMA Negeri 1 Temanggung",
 };
 
 export default function RootLayout({ children }) {

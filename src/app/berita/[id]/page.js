@@ -68,7 +68,7 @@ export default async function DetailBeritaPage({ params }) {
                   href="/berita"
                   className="text-blue-600 text-sm font-bold inline-flex items-center gap-2 hover:gap-3 transition-all"
                 >
-                  <span className="text-lg">←</span> Kembali ke Ruang Berita
+                  <span className="text-lg">←</span> Kembali ke Berita
                 </Link>
               </div>
             </div>
