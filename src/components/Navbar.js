@@ -18,7 +18,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const isActive = (href) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === "s/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav className="bg-blue-900 text-white shadow-md sticky top-0 z-50">
