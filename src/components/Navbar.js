@@ -4,11 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-// Tambahkan menu Guru di dalam array menu ini
+// Tambahkan menu di dalam array menu ini
 const menu = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Guru", href: "/guru" },
+  { label: "Ekstrakurikuler", href: "/ekstrakurikuler" },
   { label: "Berita", href: "/berita" },
 ];
 
