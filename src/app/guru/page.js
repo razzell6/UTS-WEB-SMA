@@ -26,36 +26,39 @@ export default function GuruPage() {
           </h3>
         </div>
 
-        {/* Grid Kartu Guru */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Grid Kartu Guru (4 Kolom Sesuai Tampilan Situs Resmi) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {guruList.map((guru) => (
             <div
               key={guru.id}
-              className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center flex flex-col items-center"
+              className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 text-center flex flex-col items-center justify-between"
             >
-              {/* Foto Guru */}
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-blue-100 mb-5 shadow-inner">
-                <img
-                  src={guru.foto}
-                  alt={guru.nama}
-                  className="w-full h-full object-cover"
-                />
+              <div className="flex flex-col items-center w-full">
+                {/* Placeholder Avatar Biru Muda Bulat */}
+                <div className="w-28 h-28 rounded-full bg-[#bde3f8] text-[#38bdf8] flex items-center justify-center mb-4 overflow-hidden">
+                  <svg
+                    className="w-24 h-24 fill-current translate-y-1"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>
+                </div>
+
+                {/* Nama Guru */}
+                <h4 className="text-sm font-bold text-blue-600 mb-1 leading-snug">
+                  {guru.nama}
+                </h4>
+
+                {/* Jabatan */}
+                <p className="text-xs font-bold text-slate-800 mb-1">
+                  {guru.jabatan}
+                </p>
+
+                {/* Mata Pelajaran */}
+                <p className="text-xs text-slate-400 font-medium">
+                  {guru.mapel}
+                </p>
               </div>
-
-              {/* Jabatan Badge */}
-              <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                {guru.jabatan}
-              </span>
-
-              {/* Nama Guru */}
-              <h4 className="text-lg font-bold text-slate-900 mb-1 leading-snug">
-                {guru.nama}
-              </h4>
-
-              {/* Mata Pelajaran */}
-              <p className="text-sm text-slate-500 font-medium">
-                {guru.mapel}
-              </p>
             </div>
           ))}
         </div>
