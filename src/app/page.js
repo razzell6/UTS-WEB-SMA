@@ -72,17 +72,17 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              icon: "答",
+              icon: "\u{1F4DA}", // buku
               title: "Kurikulum Unggulan",
               desc: "Menerapkan kurikulum berbasis kompetensi yang disesuaikan dengan standar nasional dan kebutuhan siswa di era digital.",
             },
             {
-              icon: "醇",
+              icon: "\u{1F3C6}", // piala
               title: "Prestasi Gemilang",
               desc: "Membina siswa untuk meraih prestasi di tingkat regional, nasional, hingga internasional di bidang akademik maupun non-akademik.",
             },
             {
-              icon: "将",
+              icon: "\u{1F3EB}", // sekolah
               title: "Fasilitas Lengkap",
               desc: "Didukung dengan laboratorium modern, perpustakaan digital, dan sarana olahraga untuk menunjang kegiatan belajar mengajar.",
             },
@@ -182,22 +182,22 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             {
-              icon: "験",
+              icon: "\u{1F331}", // tunas
               title: "Sekolah Adiwiyata Mandiri",
               desc: "Menerapkan pendidikan karakter peduli lingkungan dan pelestarian alam sekitar secara berkelanjutan.",
             },
             {
-              icon: "捗",
+              icon: "\u{1F4BB}", // laptop
               title: "Kurikulum Merdeka & Digital",
               desc: "Pembelajaran adaptif berbasis teknologi dengan platform e-learning terpadu untuk semua siswa.",
             },
             {
-              icon: "溌",
+              icon: "\u{1F52C}", // mikroskop
               title: "Pembinaan Riset & OSN",
               desc: "Bimbingan intensif untuk mencetak ilmuwan muda dan juara olimpiade sains di tingkat nasional.",
             },
             {
-              icon: "識",
+              icon: "\u{1F3AF}", // target
               title: "Pengembangan Karakter",
               desc: "Membentuk kepribadian siswa yang tangguh, berakhlak mulia, dan memiliki jiwa kepemimpinan.",
             },
