@@ -28,27 +28,20 @@ export default function EkskulPage() {
           {ekskulList.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-4xl">{item.ikon}</span>
-                  <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {item.kategori}
-                  </span>
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-2 leading-snug">
-                  {item.nama}
-                </h4>
-                <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                  {item.deskripsi}
-                </p>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-4xl">{item.ikon}</span>
+                <span className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  {item.kategori}
+                </span>
               </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                <span>Jadwal Latihan:</span>
-                <span className="font-bold text-blue-600">{item.jadwal}</span>
-              </div>
+              <h4 className="text-xl font-bold text-slate-900 mb-2 leading-snug">
+                {item.nama}
+              </h4>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {item.deskripsi}
+              </p>
             </div>
           ))}
         </div>

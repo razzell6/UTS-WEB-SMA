@@ -1,0 +1,58 @@
+export const ekskulList = [
+  {
+    id: 1,
+    nama: "SATRIA MANGGALA (OSIS/MPK)",
+    kategori: "Organisasi",
+    deskripsi: "Wadah kepemimpinan dan keorganisasian siswa untuk mengelola kegiatan kesiswaan sekolah.",
+    ikon: "\u{1F3DB}\uFE0F",
+  },
+  {
+    id: 2,
+    nama: "ROHIS AL IKHLAS",
+    kategori: "Keagamaan",
+    deskripsi: "Pengembangan nilai-nilai kerohanian Islam dan pembiasaan akhlak mulia di lingkungan sekolah.",
+    ikon: "\u{1F54C}",
+  },
+  {
+    id: 3,
+    nama: "PASPARA PATRIOT",
+    kategori: "Paskibra",
+    deskripsi: "Pelatihan kedisiplinan, ketangkasan, dan tata upacara bendera.",
+    ikon: "\u{1F6A9}",
+  },
+  {
+    id: 4,
+    nama: "Taekwondo",
+    kategori: "Bela Diri",
+    deskripsi: "Latihan bela diri untuk melatih kebugaran, ketangkasan, dan kedisiplinan siswa.",
+    ikon: "\u{1F94B}",
+  },
+  {
+    id: 5,
+    nama: "SMASA Currency",
+    kategori: "Akademik & Finansial",
+    deskripsi: "Ekstrakurikuler belajar saham yang mengenalkan literasi keuangan dan investasi, antara lain lewat Seminar Cerdas Berinvestasi.",
+    ikon: "\u{1F4C8}",
+  },
+  {
+    id: 6,
+    nama: "PMR Wira SMASA",
+    kategori: "Kemanusiaan",
+    deskripsi: "Palang Merah Remaja sekolah yang bekerja sama dengan PMI Kabupaten Temanggung dalam cek kesehatan gratis dan donor darah.",
+    ikon: "\u{1F691}",
+  },
+  {
+    id: 7,
+    nama: "Pramuka",
+    kategori: "Kepramukaan",
+    deskripsi: "Menanamkan nilai kepramukaan, kedisiplinan, tanggung jawab, dan kepedulian terhadap sesama.",
+    ikon: "\u{26FA}",
+  },
+  {
+    id: 8,
+    nama: "Smasa Voice",
+    kategori: "Seni",
+    deskripsi: "Paduan suara sekolah yang tampil membawakan lagu-lagu perjuangan pada upacara HUT RI.",
+    ikon: "\u{1F3A4}",
+  },
+];

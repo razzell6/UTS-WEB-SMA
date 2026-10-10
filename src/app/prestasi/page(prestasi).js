@@ -20,7 +20,7 @@ export default function PrestasiPage() {
             Papan Penghargaan
           </h2>
           <h3 className="text-3xl font-bold text-slate-900">
-            Capaian Prestasi Terbaru
+            Capaian Prestasi
           </h3>
         </div>
 
@@ -51,10 +51,12 @@ export default function PrestasiPage() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
-                <span>Tahun Raihan:</span>
-                <span className="font-bold text-blue-600">{item.tahun}</span>
-              </div>
+              {item.tahun && (
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium">
+                  <span>Tahun Raihan:</span>
+                  <span className="font-bold text-blue-600">{item.tahun}</span>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -50,10 +50,10 @@ export default function ProfilPage() {
     "ROHIS AL IKHLAS",
     "PASPARA PATRIOT",
     "Taekwondo",
-    "Literasi & Numerasi",
     "SMASA Currency",
-    "Klub Sains & OSN",
-    "Seni Musik & Tari",
+    "PMR Wira SMASA",
+    "Pramuka",
+    "Smasa Voice",
   ];
 
   return (

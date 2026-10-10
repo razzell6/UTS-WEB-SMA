@@ -44,9 +44,9 @@ export default function Home() {
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 flex flex-wrap justify-around gap-6 border border-slate-100">
           {[
             { angka: "A", label: "Akreditasi Unggul" },
-            { angka: "Top 10", label: "SMA Terbaik Jateng" },
-            { angka: "60+", label: "Tenaga Pendidik" },
-            { angka: "25+", label: "Ekstrakurikuler" },
+            { angka: "1959", label: "Tahun Berdiri" },
+            { angka: "8", label: "Ekstrakurikuler" },
+            { angka: "20", label: "Guru & Staf Terdaftar" },
           ].map((stat, idx) => (
             <div key={idx} className="text-center px-4">
               <h3 className="text-3xl font-extrabold text-blue-700 mb-1">
@@ -126,9 +126,10 @@ export default function Home() {
                 Sambutan Kepala Sekolah
               </h2>
               <blockquote className="text-xl md:text-2xl font-medium leading-relaxed italic mb-8 text-blue-50">
-                "Kami berkomitmen untuk terus memberikan lingkungan belajar yang
-                inovatif, nyaman, dan inklusif. Di sini, setiap potensi siswa
-                akan dikembangkan secara maksimal untuk menjadi pemimpin masa depan."
+                "Laman resmi SMAN 1 Temanggung hadir sebagai media penyedia
+                informasi akurat terkait seluruh kegiatan akademik, kesiswaan,
+                kehumasan, inovasi, serta prestasi yang terus kita upayakan
+                demi kemajuan bersama."
               </blockquote>
               <div>
                 <h4 className="text-xl font-bold">

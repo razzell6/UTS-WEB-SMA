@@ -21,8 +21,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-blue-900 text-white shadow-md sticky top-0 z-50">
-      {/* w-full dan px-6 md:px-12 membuat tampilan melebar penuh ke ujung layar */}
-      <div className="w-full px-6 md:px-12 py-3 flex flex-wrap justify-between items-center gap-y-2">
+      <div className="w-full px-4 md:px-12 py-3 flex flex-wrap justify-between items-center gap-y-3">
         {/* Logo & Nama Sekolah */}
         <Link href="/" className="flex items-center gap-3 font-bold text-base md:text-lg">
           <Image
@@ -35,8 +34,8 @@ export default function Navbar() {
           <span>SMA Negeri 1 Temanggung</span>
         </Link>
 
-        {/* Menu Navigasi */}
-        <div className="flex gap-5 font-medium text-sm md:text-base">
+        {/* Menu Navigasi (boleh turun baris di layar kecil) */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 md:gap-x-5 font-medium text-sm md:text-base">
           {menu.map((item) => (
             <Link
               key={item.href}

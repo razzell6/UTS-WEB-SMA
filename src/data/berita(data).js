@@ -89,11 +89,11 @@ export const beritaList = [
   },
   {
     id: 6,
-    judul: "Antusias Menikmati HUT RI ke-81 di SMA Negeri 1 Temanggung",
+    judul: "Satulasan Meriahkan HUT RI ke-81 di SMA Negeri 1 Temanggung",
     tanggal: "21 Agustus 2026",
     kategori: "Kesiswaan",
     ringkasan:
-      "Penyelenggaraan peringatan 'Satu Nusa' dalam rangka memeriahkan HUT RI di lingkungan sekolah...",
+      "SMA Negeri 1 Temanggung menggelar rangkaian kegiatan Satulasan selama dua hari untuk memperingati HUT ke-81 Kemerdekaan RI...",
     gambar:
       "/GambarBerita6.jpg",
     isi: [

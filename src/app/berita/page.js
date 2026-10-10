@@ -7,9 +7,9 @@ import { beritaList } from "@/data/berita";
 
 export default function BeritaPage() {
   const agendaSidebar = [
-    { judul: "Proyek Penguatan Profil Pelajar Pancasila", tanggal: "3 Okt 2026" },
-    { judul: "Daftar Ulang PPDB", tanggal: "17 Nov 2026" },
-    { judul: "Upacara Peringatan HUT RI", tanggal: "17 Agu 2026" },
+    { judul: "Bimtek SPMI untuk seluruh guru", tanggal: "29 Sep 2026" },
+    { judul: "Seminar Cerdas Berinvestasi SMASA Currency", tanggal: "18 Sep 2026" },
+    { judul: "Dies Natalis ke-67 AKSARAKARSA", tanggal: "22 Agu 2026" },
   ];
 
   const prestasiSidebar = [
@@ -50,7 +50,7 @@ export default function BeritaPage() {
                 disabled={currentPage === 1}
                 className="w-10 h-10 rounded-full flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                ←
+                {"\u2190"}
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
@@ -72,7 +72,7 @@ export default function BeritaPage() {
                 disabled={currentPage === totalPages}
                 className="w-10 h-10 rounded-full flex items-center justify-center border border-slate-200 text-slate-500 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                →
+                {"\u2192"}
               </button>
             </div>
           </div>
@@ -80,11 +80,11 @@ export default function BeritaPage() {
           {/* SIDEBAR KANAN (Lebar 4 kolom - Menempel saat di scroll) */}
           <div className="lg:col-span-4">
             <div className="sticky top-24 space-y-8">
-              {/* Widget Agenda */}
+              {/* Widget Kegiatan Terkini */}
               <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
                 <h2 className="text-sm font-bold text-slate-900 tracking-widest uppercase mb-6 flex items-center gap-3">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  Agenda Terdekat
+                  Kegiatan Terkini
                 </h2>
                 <div className="space-y-5">
                   {agendaSidebar.map((agenda, idx) => (
@@ -116,7 +116,8 @@ export default function BeritaPage() {
                         {pres.judul}
                       </h4>
                       <p className="text-xs text-blue-300 font-medium flex items-center gap-1.5">
-                        <span className="text-yellow-400">🏆</span> {pres.detail}
+                        <span className="text-yellow-400">{"\u{1F3C6}"}</span>{" "}
+                        {pres.detail}
                       </p>
                     </div>
                   ))}
