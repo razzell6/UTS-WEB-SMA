@@ -5,8 +5,8 @@ import { beritaList } from "@/data/berita";
 export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
-      {/* 1. HERO SECTION DENGAN GAMBAR BACKGROUND */}
-      <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center text-center px-4">
+      {/* 1. HERO SECTION DENGAN GAMBAR BACKGROUND (Diperpanjang) */}
+      <section className="relative h-[90vh] min-h-[750px] flex items-center justify-center text-center px-4">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
@@ -72,17 +72,17 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              icon: "📚",
+              icon: "答",
               title: "Kurikulum Unggulan",
               desc: "Menerapkan kurikulum berbasis kompetensi yang disesuaikan dengan standar nasional dan kebutuhan siswa di era digital.",
             },
             {
-              icon: "🏆",
+              icon: "醇",
               title: "Prestasi Gemilang",
               desc: "Membina siswa untuk meraih prestasi di tingkat regional, nasional, hingga internasional di bidang akademik maupun non-akademik.",
             },
             {
-              icon: "🏫",
+              icon: "将",
               title: "Fasilitas Lengkap",
               desc: "Didukung dengan laboratorium modern, perpustakaan digital, dan sarana olahraga untuk menunjang kegiatan belajar mengajar.",
             },
@@ -182,22 +182,22 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[
             {
-              icon: "🌱",
+              icon: "験",
               title: "Sekolah Adiwiyata Mandiri",
               desc: "Menerapkan pendidikan karakter peduli lingkungan dan pelestarian alam sekitar secara berkelanjutan.",
             },
             {
-              icon: "💻",
+              icon: "捗",
               title: "Kurikulum Merdeka & Digital",
               desc: "Pembelajaran adaptif berbasis teknologi dengan platform e-learning terpadu untuk semua siswa.",
             },
             {
-              icon: "🔬",
+              icon: "溌",
               title: "Pembinaan Riset & OSN",
               desc: "Bimbingan intensif untuk mencetak ilmuwan muda dan juara olimpiade sains di tingkat nasional.",
             },
             {
-              icon: "🎯",
+              icon: "識",
               title: "Pengembangan Karakter",
               desc: "Membentuk kepribadian siswa yang tangguh, berakhlak mulia, dan memiliki jiwa kepemimpinan.",
             },
