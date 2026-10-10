@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
-// Tambahkan menu di dalam array menu ini
 const menu = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
@@ -18,11 +17,12 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const isActive = (href) =>
-    href === "s/" ? pathname === "/" : pathname.startsWith(href);
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav className="bg-blue-900 text-white shadow-md sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-y-2">
+      {/* w-full dan px-6 md:px-12 membuat tampilan melebar penuh ke ujung layar */}
+      <div className="w-full px-6 md:px-12 py-3 flex flex-wrap justify-between items-center gap-y-2">
         {/* Logo & Nama Sekolah */}
         <Link href="/" className="flex items-center gap-3 font-bold text-base md:text-lg">
           <Image
