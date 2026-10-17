@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addItem, getStored, removeItem } from "../../lib/storage";
+import { addItem, getStored, removeItem, updateItem } from "../../lib/storage";
 
 const KATEGORI_BERITA = [
   "Akademik",
@@ -31,13 +31,33 @@ const buttonStyle = {
 };
 
 const dangerStyle = { ...buttonStyle, background: "#b91c1c", borderColor: "#b91c1c" };
+const ghostStyle = { ...buttonStyle, background: "transparent", color: "inherit", border: "1px solid #888" };
+
+function naikKeAtas() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 function Pesan({ pesan }) {
   if (!pesan) return null;
   return <p style={{ color: pesan.includes("berhasil") ? "green" : "red" }}>{pesan}</p>;
 }
 
-function ListItem({ title, sub, onHapus }) {
+function FormButtons({ editing, labelTambah, onBatal }) {
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      <button type="submit" style={{ ...buttonStyle, flex: 1 }}>
+        {editing ? "Simpan Perubahan" : labelTambah}
+      </button>
+      {editing && (
+        <button type="button" onClick={onBatal} style={ghostStyle}>
+          Batal
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ListItem({ title, sub, onEdit, onHapus }) {
   return (
     <div
       style={{
@@ -54,9 +74,14 @@ function ListItem({ title, sub, onHapus }) {
         <strong>{title}</strong>
         <div style={{ fontSize: 13, opacity: 0.6 }}>{sub}</div>
       </div>
-      <button onClick={onHapus} style={dangerStyle}>
-        Hapus
-      </button>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={onEdit} style={buttonStyle}>
+          Edit
+        </button>
+        <button onClick={onHapus} style={dangerStyle}>
+          Hapus
+        </button>
+      </div>
     </div>
   );
 }
@@ -64,6 +89,7 @@ function ListItem({ title, sub, onHapus }) {
 /* ---------------- BERITA ---------------- */
 function BeritaManager() {
   const [list, setList] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [judul, setJudul] = useState("");
   const [kategori, setKategori] = useState(KATEGORI_BERITA[0]);
   const [gambar, setGambar] = useState("");
@@ -73,6 +99,24 @@ function BeritaManager() {
   useEffect(() => {
     setList(getStored("berita"));
   }, []);
+
+  function reset() {
+    setEditId(null);
+    setJudul("");
+    setKategori(KATEGORI_BERITA[0]);
+    setGambar("");
+    setIsi("");
+  }
+
+  function handleEdit(b) {
+    setEditId(b.id);
+    setJudul(b.judul);
+    setKategori(b.kategori);
+    setGambar(b.gambar || "");
+    setIsi(Array.isArray(b.isi) ? b.isi.join("\n\n") : String(b.isi));
+    setPesan("");
+    naikKeAtas();
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -89,37 +133,41 @@ function BeritaManager() {
     const ringkasan =
       paragraf[0].length > 110 ? paragraf[0].slice(0, 110) + "..." : paragraf[0];
 
-    const tanggal = new Date().toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-
-    addItem("berita", {
+    const data = {
       judul: judul.trim(),
-      tanggal,
       kategori,
       ringkasan,
       gambar: gambar.trim(),
       isi: paragraf,
-    });
+    };
+
+    if (editId) {
+      updateItem("berita", editId, data);
+      setPesan("Perubahan berhasil disimpan");
+    } else {
+      const tanggal = new Date().toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      addItem("berita", { ...data, tanggal });
+      setPesan("Berita berhasil disimpan");
+    }
 
     setList(getStored("berita"));
-    setJudul("");
-    setGambar("");
-    setIsi("");
-    setPesan("Berita berhasil disimpan");
+    reset();
   }
 
   function handleHapus(id) {
     if (!confirm("Hapus berita ini?")) return;
     removeItem("berita", id);
     setList(getStored("berita"));
+    if (editId === id) reset();
   }
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Tambah Berita</h2>
+      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Berita" : "Tambah Berita"}</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
@@ -155,9 +203,7 @@ function BeritaManager() {
           style={{ ...inputStyle, resize: "vertical" }}
         />
         <Pesan pesan={pesan} />
-        <button type="submit" style={buttonStyle}>
-          Simpan Berita
-        </button>
+        <FormButtons editing={!!editId} labelTambah="Simpan Berita" onBatal={reset} />
       </form>
 
       <h2 style={{ margin: "32px 0 12px" }}>Berita yang ditambahkan ({list.length})</h2>
@@ -170,6 +216,7 @@ function BeritaManager() {
               key={b.id}
               title={b.judul}
               sub={`${b.kategori} · ${b.tanggal}`}
+              onEdit={() => handleEdit(b)}
               onHapus={() => handleHapus(b.id)}
             />
           ))}
@@ -182,6 +229,7 @@ function BeritaManager() {
 /* ---------------- EKSTRAKURIKULER ---------------- */
 function EkskulManager() {
   const [list, setList] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [nama, setNama] = useState("");
   const [kategori, setKategori] = useState("");
   const [ikon, setIkon] = useState("");
@@ -192,6 +240,24 @@ function EkskulManager() {
     setList(getStored("ekskul"));
   }, []);
 
+  function reset() {
+    setEditId(null);
+    setNama("");
+    setKategori("");
+    setIkon("");
+    setDeskripsi("");
+  }
+
+  function handleEdit(x) {
+    setEditId(x.id);
+    setNama(x.nama);
+    setKategori(x.kategori);
+    setIkon(x.ikon);
+    setDeskripsi(x.deskripsi);
+    setPesan("");
+    naikKeAtas();
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!nama.trim() || !deskripsi.trim()) {
@@ -199,30 +265,37 @@ function EkskulManager() {
       return;
     }
 
-    addItem("ekskul", {
+    const data = {
       nama: nama.trim(),
       kategori: kategori.trim() || "Umum",
       deskripsi: deskripsi.trim(),
       ikon: ikon.trim() || "\u{1F3EB}",
-    });
+    };
+
+    if (editId) {
+      updateItem("ekskul", editId, data);
+      setPesan("Perubahan berhasil disimpan");
+    } else {
+      addItem("ekskul", data);
+      setPesan("Ekstrakurikuler berhasil disimpan");
+    }
 
     setList(getStored("ekskul"));
-    setNama("");
-    setKategori("");
-    setIkon("");
-    setDeskripsi("");
-    setPesan("Ekstrakurikuler berhasil disimpan");
+    reset();
   }
 
   function handleHapus(id) {
     if (!confirm("Hapus ekstrakurikuler ini?")) return;
     removeItem("ekskul", id);
     setList(getStored("ekskul"));
+    if (editId === id) reset();
   }
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Tambah Ekstrakurikuler</h2>
+      <h2 style={{ marginBottom: 16 }}>
+        {editId ? "Edit Ekstrakurikuler" : "Tambah Ekstrakurikuler"}
+      </h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
@@ -253,9 +326,7 @@ function EkskulManager() {
           style={{ ...inputStyle, resize: "vertical" }}
         />
         <Pesan pesan={pesan} />
-        <button type="submit" style={buttonStyle}>
-          Simpan Ekstrakurikuler
-        </button>
+        <FormButtons editing={!!editId} labelTambah="Simpan Ekstrakurikuler" onBatal={reset} />
       </form>
 
       <h2 style={{ margin: "32px 0 12px" }}>Ekstrakurikuler yang ditambahkan ({list.length})</h2>
@@ -268,6 +339,7 @@ function EkskulManager() {
               key={x.id}
               title={`${x.ikon} ${x.nama}`}
               sub={x.kategori}
+              onEdit={() => handleEdit(x)}
               onHapus={() => handleHapus(x.id)}
             />
           ))}
@@ -280,6 +352,7 @@ function EkskulManager() {
 /* ---------------- GURU ---------------- */
 function GuruManager() {
   const [list, setList] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [nama, setNama] = useState("");
   const [jabatan, setJabatan] = useState("");
   const [mapel, setMapel] = useState("");
@@ -289,6 +362,22 @@ function GuruManager() {
     setList(getStored("guru"));
   }, []);
 
+  function reset() {
+    setEditId(null);
+    setNama("");
+    setJabatan("");
+    setMapel("");
+  }
+
+  function handleEdit(g) {
+    setEditId(g.id);
+    setNama(g.nama);
+    setJabatan(g.jabatan);
+    setMapel(g.mapel === "-" ? "" : g.mapel);
+    setPesan("");
+    naikKeAtas();
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!nama.trim()) {
@@ -296,28 +385,34 @@ function GuruManager() {
       return;
     }
 
-    addItem("guru", {
+    const data = {
       nama: nama.trim(),
       jabatan: jabatan.trim() || "Guru",
       mapel: mapel.trim() || "-",
-    });
+    };
+
+    if (editId) {
+      updateItem("guru", editId, data);
+      setPesan("Perubahan berhasil disimpan");
+    } else {
+      addItem("guru", data);
+      setPesan("Guru berhasil disimpan");
+    }
 
     setList(getStored("guru"));
-    setNama("");
-    setJabatan("");
-    setMapel("");
-    setPesan("Guru berhasil disimpan");
+    reset();
   }
 
   function handleHapus(id) {
     if (!confirm("Hapus data guru ini?")) return;
     removeItem("guru", id);
     setList(getStored("guru"));
+    if (editId === id) reset();
   }
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Tambah Guru</h2>
+      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Guru" : "Tambah Guru"}</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
@@ -341,9 +436,7 @@ function GuruManager() {
           style={inputStyle}
         />
         <Pesan pesan={pesan} />
-        <button type="submit" style={buttonStyle}>
-          Simpan Guru
-        </button>
+        <FormButtons editing={!!editId} labelTambah="Simpan Guru" onBatal={reset} />
       </form>
 
       <h2 style={{ margin: "32px 0 12px" }}>Guru yang ditambahkan ({list.length})</h2>
@@ -356,6 +449,7 @@ function GuruManager() {
               key={g.id}
               title={g.nama}
               sub={`${g.jabatan} · ${g.mapel}`}
+              onEdit={() => handleEdit(g)}
               onHapus={() => handleHapus(g.id)}
             />
           ))}
@@ -368,6 +462,7 @@ function GuruManager() {
 /* ---------------- PRESTASI ---------------- */
 function PrestasiManager() {
   const [list, setList] = useState([]);
+  const [editId, setEditId] = useState(null);
   const [title, setTitle] = useState("");
   const [kategori, setKategori] = useState("");
   const [tingkat, setTingkat] = useState("");
@@ -380,6 +475,28 @@ function PrestasiManager() {
     setList(getStored("prestasi"));
   }, []);
 
+  function reset() {
+    setEditId(null);
+    setTitle("");
+    setKategori("");
+    setTingkat("");
+    setTahun("");
+    setIkon("");
+    setDeskripsi("");
+  }
+
+  function handleEdit(p) {
+    setEditId(p.id);
+    setTitle(p.title);
+    setKategori(p.kategori);
+    setTingkat(p.tingkat);
+    setTahun(p.tahun || "");
+    setIkon(p.ikon);
+    setDeskripsi(p.deskripsi);
+    setPesan("");
+    naikKeAtas();
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim() || !deskripsi.trim()) {
@@ -387,34 +504,37 @@ function PrestasiManager() {
       return;
     }
 
-    addItem("prestasi", {
+    const data = {
       title: title.trim(),
       kategori: kategori.trim() || "Umum",
       tingkat: tingkat.trim() || "Sekolah",
       tahun: tahun.trim(),
       deskripsi: deskripsi.trim(),
       ikon: ikon.trim() || "\u{1F3C6}",
-    });
+    };
+
+    if (editId) {
+      updateItem("prestasi", editId, data);
+      setPesan("Perubahan berhasil disimpan");
+    } else {
+      addItem("prestasi", data);
+      setPesan("Prestasi berhasil disimpan");
+    }
 
     setList(getStored("prestasi"));
-    setTitle("");
-    setKategori("");
-    setTingkat("");
-    setTahun("");
-    setIkon("");
-    setDeskripsi("");
-    setPesan("Prestasi berhasil disimpan");
+    reset();
   }
 
   function handleHapus(id) {
     if (!confirm("Hapus prestasi ini?")) return;
     removeItem("prestasi", id);
     setList(getStored("prestasi"));
+    if (editId === id) reset();
   }
 
   return (
     <div>
-      <h2 style={{ marginBottom: 16 }}>Tambah Prestasi</h2>
+      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Prestasi" : "Tambah Prestasi"}</h2>
       <form
         onSubmit={handleSubmit}
         style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
@@ -457,9 +577,7 @@ function PrestasiManager() {
           style={{ ...inputStyle, resize: "vertical" }}
         />
         <Pesan pesan={pesan} />
-        <button type="submit" style={buttonStyle}>
-          Simpan Prestasi
-        </button>
+        <FormButtons editing={!!editId} labelTambah="Simpan Prestasi" onBatal={reset} />
       </form>
 
       <h2 style={{ margin: "32px 0 12px" }}>Prestasi yang ditambahkan ({list.length})</h2>
@@ -472,6 +590,7 @@ function PrestasiManager() {
               key={p.id}
               title={`${p.ikon} ${p.title}`}
               sub={`${p.kategori} · ${p.tingkat}`}
+              onEdit={() => handleEdit(p)}
               onHapus={() => handleHapus(p.id)}
             />
           ))}
@@ -502,23 +621,20 @@ function Dashboard({ onLogout }) {
           marginBottom: 24,
         }}
       >
-      <h1>Dashboard Admin</h1>
-      <div style={{ display: "flex", gap: 8 }}>
-        <a
-          href="/"
-          target="_blank"
-          rel="noreferrer"
-          style={{ ...buttonStyle, textDecoration: "none", display: "inline-block" }}
-        >
-          Lihat Website
-        </a>
-        <button
-          onClick={onLogout}
-          style={{ ...buttonStyle, background: "transparent", color: "inherit", border: "1px solid #888" }}
-        >
-          Logout
-        </button>
-      </div>
+        <h1>Dashboard Admin</h1>
+        <div style={{ display: "flex", gap: 8 }}>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ ...buttonStyle, textDecoration: "none", display: "inline-block" }}
+          >
+            Lihat Website
+          </a>
+          <button onClick={onLogout} style={ghostStyle}>
+            Logout
+          </button>
+        </div>
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
