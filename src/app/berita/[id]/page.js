@@ -1,28 +1,45 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
-import { beritaList, getBeritaById } from "@/data/berita";
+import { beritaList } from "@/data/berita";
+import { getMerged } from "@/lib/storage";
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const berita = getBeritaById(id);
+export default function DetailBeritaPage() {
+  const { id } = useParams();
+  const [semua, setSemua] = useState(null);
 
-  return {
-    title: berita
-      ? `${berita.judul} | SMA Negeri 1 Temanggung`
-      : "Berita tidak ditemukan",
-  };
-}
+  useEffect(() => {
+    setSemua(getMerged("berita", beritaList));
+  }, []);
 
-export default async function DetailBeritaPage({ params }) {
-  const { id } = await params;
-  const berita = getBeritaById(id);
+  const berita = semua ? semua.find((b) => b.id === Number(id)) : null;
 
-  if (!berita) {
-    notFound();
+  useEffect(() => {
+    if (berita) {
+      document.title = `${berita.judul} | SMA Negeri 1 Temanggung`;
+    }
+  }, [berita]);
+
+  if (!semua) {
+    return <div className="p-10 text-slate-500">Memuat...</div>;
   }
 
-  const beritaLain = beritaList.filter((b) => b.id !== berita.id).slice(0, 3);
+  if (!berita) {
+    return (
+      <div className="bg-slate-50 min-h-screen flex flex-col items-center justify-center gap-4 font-sans">
+        <h1 className="text-2xl font-bold text-slate-800">Berita tidak ditemukan</h1>
+        <Link href="/berita" className="text-blue-600 font-bold">
+          ← Kembali ke Berita
+        </Link>
+      </div>
+    );
+  }
+
+  const beritaLain = semua.filter((b) => b.id !== berita.id).slice(0, 3);
+  const paragrafList = Array.isArray(berita.isi) ? berita.isi : [String(berita.isi)];
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans">
@@ -36,11 +53,17 @@ export default async function DetailBeritaPage({ params }) {
           {/* ARTIKEL UTAMA */}
           <article className="lg:col-span-8 bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100">
             <div className="aspect-[16/9] overflow-hidden">
-              <img
-                src={berita.gambar}
-                alt={berita.judul}
-                className="w-full h-full object-cover"
-              />
+              {berita.gambar ? (
+                <img
+                  src={berita.gambar}
+                  alt={berita.judul}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center text-blue-200 font-medium">
+                  SMA Negeri 1 Temanggung
+                </div>
+              )}
             </div>
 
             <div className="p-6 md:p-10">
@@ -58,7 +81,7 @@ export default async function DetailBeritaPage({ params }) {
               </h1>
 
               <div className="space-y-4 text-slate-600 leading-relaxed">
-                {berita.isi.map((paragraf, idx) => (
+                {paragrafList.map((paragraf, idx) => (
                   <p key={idx}>{paragraf}</p>
                 ))}
               </div>

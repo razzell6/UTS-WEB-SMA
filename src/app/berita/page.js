@@ -2,8 +2,10 @@
 
 import Hero from "@/components/Hero";
 import BeritaCard from "@/components/BeritaCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { beritaList } from "@/data/berita";
+import { getMerged } from "@/lib/storage";
+import { prestasiList } from "@/data/prestasi";
 
 export default function BeritaPage() {
   const agendaSidebar = [
@@ -12,19 +14,29 @@ export default function BeritaPage() {
     { judul: "Dies Natalis ke-67 AKSARAKARSA", tanggal: "22 Agu 2026" },
   ];
 
-  const prestasiSidebar = [
-    { judul: "Lomba Bola Tangan", detail: "Juara 1 Kabupaten" },
-    { judul: "Olimpiade Sains Nasional", detail: "Medali Perak" },
-    { judul: "POPDA Bola Basket", detail: "Juara 1 Putra" },
-    { judul: "AFK Liga Futsal Pelajar", detail: "Juara 1" },
-  ];
+  const [semuaPrestasi, setSemuaPrestasi] = useState(prestasiList);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
-  const totalPages = Math.ceil(beritaList.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentBerita = beritaList.slice(indexOfFirstItem, indexOfLastItem);
+  useEffect(() => {
+    setSemuaPrestasi(getMerged("prestasi", prestasiList));
+  }, []);
+
+  const prestasiSidebar = semuaPrestasi.slice(0, 4).map((p) => ({
+    judul: p.title,
+    detail: `${p.tingkat} · ${p.kategori}`,
+}));
+
+const [semuaBerita, setSemuaBerita] = useState(beritaList);
+
+useEffect(() => {
+  setSemuaBerita(getMerged("berita", beritaList));
+}, []);
+
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 4;
+const totalPages = Math.ceil(semuaBerita.length / itemsPerPage);
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentBerita = semuaBerita.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans">

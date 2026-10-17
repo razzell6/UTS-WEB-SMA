@@ -1,6 +1,5 @@
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import LayoutShell from "@/components/LayoutShell";
 
 export const metadata = {
   title: "SMA Negeri 1 Temanggung",
@@ -11,9 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id">
       <body className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );

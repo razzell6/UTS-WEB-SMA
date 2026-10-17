@@ -1,6 +1,6 @@
 import Link from "next/link";
-import BeritaCard from "@/components/BeritaCard";
-import { beritaList } from "@/data/berita";
+import BeritaTerbaru from "@/components/BeritaTerbaru";
+import StatistikBeranda from "@/components/StatistikBeranda";
 
 export default function Home() {
   return (
@@ -40,23 +40,7 @@ export default function Home() {
       </section>
 
       {/* 2. STATISTIK OVERLAP (Ditarik ke atas menabrak Hero) */}
-      <section className="relative z-20 max-w-5xl mx-auto px-4 -mt-16">
-        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 flex flex-wrap justify-around gap-6 border border-slate-100">
-          {[
-            { angka: "A", label: "Akreditasi Unggul" },
-            { angka: "1959", label: "Tahun Berdiri" },
-            { angka: "8", label: "Ekstrakurikuler" },
-            { angka: "20", label: "Guru & Staf Terdaftar" },
-          ].map((stat, idx) => (
-            <div key={idx} className="text-center px-4">
-              <h3 className="text-3xl font-extrabold text-blue-700 mb-1">
-                {stat.angka}
-              </h3>
-              <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatistikBeranda />
 
       {/* 3. KEUNGGULAN SEKOLAH */}
       <section className="py-24 max-w-6xl mx-auto px-4">
@@ -152,11 +136,7 @@ export default function Home() {
             <h3 className="text-3xl font-bold text-slate-900">Berita Terbaru</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {beritaList.slice(0, 3).map((item) => (
-              <BeritaCard key={item.id} berita={item} />
-            ))}
-          </div>
+          <BeritaTerbaru />
 
           <div className="text-center mt-12">
             <Link

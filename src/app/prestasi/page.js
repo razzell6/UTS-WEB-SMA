@@ -1,12 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import { prestasiList } from "@/data/prestasi";
-
-export const metadata = {
-  title: "Prestasi Sekolah | SMA Negeri 1 Temanggung",
-  description: "Daftar pencapaian dan prestasi siswa SMA Negeri 1 Temanggung",
-};
+import { getMerged } from "@/lib/storage";
 
 export default function PrestasiPage() {
+  const [semuaPrestasi, setSemuaPrestasi] = useState(prestasiList);
+
+  useEffect(() => {
+    setSemuaPrestasi(getMerged("prestasi", prestasiList));
+  }, []);
+
+  useEffect(() => {
+    document.title = "Prestasi Sekolah | SMA Negeri 1 Temanggung";
+  }, []);
+
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans">
       <Hero
@@ -25,7 +34,7 @@ export default function PrestasiPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {prestasiList.map((item) => (
+          {semuaPrestasi.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"

@@ -7,11 +7,17 @@ export default function BeritaCard({ berita }) {
         <span className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold tracking-wider uppercase text-blue-700 rounded-full">
           {berita.kategori}
         </span>
-        <img
-          src={berita.gambar}
-          alt={berita.judul}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
-        />
+        {berita.gambar ? (
+          <img
+            src={berita.gambar}
+            alt={berita.judul}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center text-blue-200 text-sm font-medium">
+            SMA Negeri 1 Temanggung
+          </div>
+        )}
       </div>
 
       <div className="p-6 flex flex-col flex-grow">

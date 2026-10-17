@@ -1,12 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import { guruList } from "@/data/guru";
-
-export const metadata = {
-  title: "Profil Guru | SMA Negeri 1 Temanggung",
-  description: "Daftar tenaga pendidik dan guru di SMA Negeri 1 Temanggung",
-};
+import { getMerged } from "@/lib/storage";
 
 export default function GuruPage() {
+  const [semuaGuru, setSemuaGuru] = useState(guruList);
+
+  useEffect(() => {
+    setSemuaGuru(getMerged("guru", guruList));
+  }, []);
+
+  useEffect(() => {
+    document.title = "Profil Guru | SMA Negeri 1 Temanggung";
+  }, []);
+
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans">
       <Hero
@@ -25,7 +34,7 @@ export default function GuruPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {guruList.map((guru) => (
+          {semuaGuru.map((guru) => (
             <div
               key={guru.id}
               className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 text-center flex flex-col items-center"

@@ -1,12 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import { ekskulList } from "@/data/ekskul";
-
-export const metadata = {
-  title: "Ekstrakurikuler | SMA Negeri 1 Temanggung",
-  description: "Daftar ekstrakurikuler di SMA Negeri 1 Temanggung",
-};
+import { getMerged } from "@/lib/storage";
 
 export default function EkskulPage() {
+  const [semuaEkskul, setSemuaEkskul] = useState(ekskulList);
+
+  useEffect(() => {
+    setSemuaEkskul(getMerged("ekskul", ekskulList));
+  }, []);
+
+  useEffect(() => {
+    document.title = "Ekstrakurikuler | SMA Negeri 1 Temanggung";
+  }, []);
+
   return (
     <div className="bg-slate-50 min-h-screen pb-20 font-sans">
       <Hero
@@ -25,7 +34,7 @@ export default function EkskulPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {ekskulList.map((item) => (
+          {semuaEkskul.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
