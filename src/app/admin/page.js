@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react";
 import { addItem, getStored, removeItem, updateItem } from "../../lib/storage";
 
+/* ---------- STYLE ---------- */
+const inputCls =
+  "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100";
+const btnPrimary =
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 active:scale-95 cursor-pointer";
+const btnGhost =
+  "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 active:scale-95 cursor-pointer";
+const btnSmall =
+  "rounded-lg px-3 py-1.5 text-xs font-semibold transition active:scale-95 cursor-pointer";
+
 const KATEGORI_BERITA = [
   "Akademik",
   "Ekstrakurikuler",
@@ -12,662 +22,429 @@ const KATEGORI_BERITA = [
   "Sekolah",
 ];
 
-const inputStyle = {
-  padding: 10,
-  border: "1px solid #ccc",
-  borderRadius: 6,
-  color: "black",
-  background: "white",
-  width: "100%",
+/* ---------- KONFIGURASI TIAP BAGIAN ---------- */
+const SECTIONS = {
+  berita: {
+    tab: "Berita",
+    icon: "\u{1F4F0}",
+    singular: "Berita",
+    storageKey: "berita",
+    required: ["judul", "isi"],
+    requiredMsg: "Judul dan isi berita wajib diisi",
+    fields: [
+      { name: "judul", placeholder: "Judul berita" },
+      { name: "kategori", type: "select", options: KATEGORI_BERITA },
+      { name: "gambar", placeholder: "Gambar (opsional), contoh: /GambarBerita1.jpg" },
+      {
+        name: "isi",
+        type: "textarea",
+        rows: 8,
+        placeholder: "Isi berita. Pisahkan paragraf dengan satu baris kosong.",
+      },
+    ],
+    initial: { judul: "", kategori: KATEGORI_BERITA[0], gambar: "", isi: "" },
+    toValues: (it) => ({
+      judul: it.judul,
+      kategori: it.kategori,
+      gambar: it.gambar || "",
+      isi: Array.isArray(it.isi) ? it.isi.join("\n\n") : String(it.isi),
+    }),
+    build: (v, isEdit) => {
+      const paragraf = v.isi
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+      const data = {
+        judul: v.judul.trim(),
+        kategori: v.kategori,
+        ringkasan:
+          paragraf[0].length > 110 ? paragraf[0].slice(0, 110) + "..." : paragraf[0],
+        gambar: v.gambar.trim(),
+        isi: paragraf,
+      };
+      if (!isEdit) {
+        data.tanggal = new Date().toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+      return data;
+    },
+    itemTitle: (it) => it.judul,
+    itemSub: (it) => `${it.kategori} · ${it.tanggal}`,
+  },
+
+  ekskul: {
+    tab: "Ekstrakurikuler",
+    icon: "\u{1F3AF}",
+    singular: "Ekstrakurikuler",
+    storageKey: "ekskul",
+    required: ["nama", "deskripsi"],
+    requiredMsg: "Nama dan deskripsi wajib diisi",
+    fields: [
+      { name: "nama", placeholder: "Nama ekstrakurikuler" },
+      { name: "kategori", placeholder: "Kategori, contoh: Seni, Olahraga, Organisasi" },
+      { name: "ikon", placeholder: "Ikon (satu emoji), contoh: ⚽" },
+      { name: "deskripsi", type: "textarea", rows: 4, placeholder: "Deskripsi singkat" },
+    ],
+    initial: { nama: "", kategori: "", ikon: "", deskripsi: "" },
+    toValues: (it) => ({
+      nama: it.nama,
+      kategori: it.kategori,
+      ikon: it.ikon,
+      deskripsi: it.deskripsi,
+    }),
+    build: (v) => ({
+      nama: v.nama.trim(),
+      kategori: v.kategori.trim() || "Umum",
+      deskripsi: v.deskripsi.trim(),
+      ikon: v.ikon.trim() || "\u{1F3EB}",
+    }),
+    itemTitle: (it) => `${it.ikon} ${it.nama}`,
+    itemSub: (it) => it.kategori,
+  },
+
+  guru: {
+    tab: "Guru",
+    icon: "\u{1F469}\u200D\u{1F3EB}",
+    singular: "Guru",
+    storageKey: "guru",
+    required: ["nama"],
+    requiredMsg: "Nama wajib diisi",
+    fields: [
+      { name: "nama", placeholder: "Nama lengkap beserta gelar" },
+      { name: "jabatan", placeholder: "Jabatan, contoh: Wali Kelas, Wakasek Kurikulum" },
+      { name: "mapel", placeholder: "Mata pelajaran (kosongkan jika tidak ada)" },
+    ],
+    initial: { nama: "", jabatan: "", mapel: "" },
+    toValues: (it) => ({
+      nama: it.nama,
+      jabatan: it.jabatan,
+      mapel: it.mapel === "-" ? "" : it.mapel,
+    }),
+    build: (v) => ({
+      nama: v.nama.trim(),
+      jabatan: v.jabatan.trim() || "Guru",
+      mapel: v.mapel.trim() || "-",
+    }),
+    itemTitle: (it) => it.nama,
+    itemSub: (it) => `${it.jabatan} · ${it.mapel}`,
+  },
+
+  prestasi: {
+    tab: "Prestasi",
+    icon: "\u{1F3C6}",
+    singular: "Prestasi",
+    storageKey: "prestasi",
+    required: ["title", "deskripsi"],
+    requiredMsg: "Judul prestasi dan deskripsi wajib diisi",
+    fields: [
+      { name: "title", placeholder: "Judul prestasi, contoh: Juara 1 Lomba Debat" },
+      { name: "kategori", placeholder: "Kategori, contoh: Akademik, Olahraga, Seni" },
+      { name: "tingkat", placeholder: "Tingkat, contoh: Kabupaten, Provinsi, Nasional" },
+      { name: "tahun", placeholder: "Tahun raihan (opsional), contoh: 2026" },
+      { name: "ikon", placeholder: "Ikon (satu emoji, opsional), contoh: 🏆" },
+      { name: "deskripsi", type: "textarea", rows: 4, placeholder: "Deskripsi singkat" },
+    ],
+    initial: { title: "", kategori: "", tingkat: "", tahun: "", ikon: "", deskripsi: "" },
+    toValues: (it) => ({
+      title: it.title,
+      kategori: it.kategori,
+      tingkat: it.tingkat,
+      tahun: it.tahun || "",
+      ikon: it.ikon,
+      deskripsi: it.deskripsi,
+    }),
+    build: (v) => ({
+      title: v.title.trim(),
+      kategori: v.kategori.trim() || "Umum",
+      tingkat: v.tingkat.trim() || "Sekolah",
+      tahun: v.tahun.trim(),
+      deskripsi: v.deskripsi.trim(),
+      ikon: v.ikon.trim() || "\u{1F3C6}",
+    }),
+    itemTitle: (it) => `${it.ikon} ${it.title}`,
+    itemSub: (it) => `${it.kategori} · ${it.tingkat}`,
+  },
 };
 
-const buttonStyle = {
-  padding: "10px 16px",
-  borderRadius: 6,
-  cursor: "pointer",
-  border: "1px solid #1e3a8a",
-  background: "#1e3a8a",
-  color: "white",
-};
+const TAB_ORDER = ["berita", "ekskul", "guru", "prestasi"];
 
-const dangerStyle = { ...buttonStyle, background: "#b91c1c", borderColor: "#b91c1c" };
-const ghostStyle = { ...buttonStyle, background: "transparent", color: "inherit", border: "1px solid #888" };
-
-function naikKeAtas() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function Pesan({ pesan }) {
-  if (!pesan) return null;
-  return <p style={{ color: pesan.includes("berhasil") ? "green" : "red" }}>{pesan}</p>;
-}
-
-function FormButtons({ editing, labelTambah, onBatal }) {
-  return (
-    <div style={{ display: "flex", gap: 8 }}>
-      <button type="submit" style={{ ...buttonStyle, flex: 1 }}>
-        {editing ? "Simpan Perubahan" : labelTambah}
-      </button>
-      {editing && (
-        <button type="button" onClick={onBatal} style={ghostStyle}>
-          Batal
-        </button>
-      )}
-    </div>
-  );
-}
-
-function ListItem({ title, sub, onEdit, onHapus }) {
-  return (
-    <div
-      style={{
-        border: "1px solid #444",
-        borderRadius: 8,
-        padding: 14,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12,
-      }}
-    >
-      <div>
-        <strong>{title}</strong>
-        <div style={{ fontSize: 13, opacity: 0.6 }}>{sub}</div>
-      </div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <button onClick={onEdit} style={buttonStyle}>
-          Edit
-        </button>
-        <button onClick={onHapus} style={dangerStyle}>
-          Hapus
-        </button>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- BERITA ---------------- */
-function BeritaManager() {
+/* ---------- KOMPONEN CRUD UMUM ---------- */
+function Manager({ cfg }) {
   const [list, setList] = useState([]);
   const [editId, setEditId] = useState(null);
-  const [judul, setJudul] = useState("");
-  const [kategori, setKategori] = useState(KATEGORI_BERITA[0]);
-  const [gambar, setGambar] = useState("");
-  const [isi, setIsi] = useState("");
-  const [pesan, setPesan] = useState("");
+  const [values, setValues] = useState(cfg.initial);
+  const [notif, setNotif] = useState(null);
 
   useEffect(() => {
-    setList(getStored("berita"));
-  }, []);
+    setList(getStored(cfg.storageKey));
+  }, [cfg.storageKey]);
+
+  function setField(name, val) {
+    setValues((prev) => ({ ...prev, [name]: val }));
+  }
 
   function reset() {
     setEditId(null);
-    setJudul("");
-    setKategori(KATEGORI_BERITA[0]);
-    setGambar("");
-    setIsi("");
+    setValues(cfg.initial);
   }
 
-  function handleEdit(b) {
-    setEditId(b.id);
-    setJudul(b.judul);
-    setKategori(b.kategori);
-    setGambar(b.gambar || "");
-    setIsi(Array.isArray(b.isi) ? b.isi.join("\n\n") : String(b.isi));
-    setPesan("");
-    naikKeAtas();
+  function handleEdit(it) {
+    setEditId(it.id);
+    setValues(cfg.toValues(it));
+    setNotif(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!judul.trim() || !isi.trim()) {
-      setPesan("Judul dan isi berita wajib diisi");
+    const kosong = cfg.required.some((k) => !String(values[k] || "").trim());
+    if (kosong) {
+      setNotif({ type: "error", text: cfg.requiredMsg });
       return;
     }
 
-    const paragraf = isi
-      .split(/\n\s*\n/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-
-    const ringkasan =
-      paragraf[0].length > 110 ? paragraf[0].slice(0, 110) + "..." : paragraf[0];
-
-    const data = {
-      judul: judul.trim(),
-      kategori,
-      ringkasan,
-      gambar: gambar.trim(),
-      isi: paragraf,
-    };
-
+    const data = cfg.build(values, !!editId);
     if (editId) {
-      updateItem("berita", editId, data);
-      setPesan("Perubahan berhasil disimpan");
+      updateItem(cfg.storageKey, editId, data);
+      setNotif({ type: "ok", text: "Perubahan berhasil disimpan" });
     } else {
-      const tanggal = new Date().toLocaleDateString("id-ID", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-      addItem("berita", { ...data, tanggal });
-      setPesan("Berita berhasil disimpan");
+      addItem(cfg.storageKey, data);
+      setNotif({ type: "ok", text: `${cfg.singular} berhasil disimpan` });
     }
-
-    setList(getStored("berita"));
+    setList(getStored(cfg.storageKey));
     reset();
   }
 
   function handleHapus(id) {
-    if (!confirm("Hapus berita ini?")) return;
-    removeItem("berita", id);
-    setList(getStored("berita"));
+    if (!confirm(`Hapus ${cfg.singular.toLowerCase()} ini?`)) return;
+    removeItem(cfg.storageKey, id);
+    setList(getStored(cfg.storageKey));
     if (editId === id) reset();
   }
 
   return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Berita" : "Tambah Berita"}</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
-      >
-        <input
-          placeholder="Judul berita"
-          value={judul}
-          onChange={(e) => setJudul(e.target.value)}
-          style={inputStyle}
-        />
-        <select
-          value={kategori}
-          onChange={(e) => setKategori(e.target.value)}
-          style={inputStyle}
-        >
-          {KATEGORI_BERITA.map((k) => (
-            <option key={k} value={k}>
-              {k}
-            </option>
-          ))}
-        </select>
-        <input
-          placeholder="Gambar (opsional), contoh: /GambarBerita1.jpg"
-          value={gambar}
-          onChange={(e) => setGambar(e.target.value)}
-          style={inputStyle}
-        />
-        <textarea
-          placeholder="Isi berita. Pisahkan paragraf dengan satu baris kosong."
-          value={isi}
-          onChange={(e) => setIsi(e.target.value)}
-          rows={8}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
-        <Pesan pesan={pesan} />
-        <FormButtons editing={!!editId} labelTambah="Simpan Berita" onBatal={reset} />
-      </form>
-
-      <h2 style={{ margin: "32px 0 12px" }}>Berita yang ditambahkan ({list.length})</h2>
-      {list.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>Belum ada berita tambahan.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {list.map((b) => (
-            <ListItem
-              key={b.id}
-              title={b.judul}
-              sub={`${b.kategori} · ${b.tanggal}`}
-              onEdit={() => handleEdit(b)}
-              onHapus={() => handleHapus(b.id)}
-            />
-          ))}
+    <div className="space-y-6">
+      {/* FORM */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-2xl">
+            {cfg.icon}
+          </span>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {editId ? `Edit ${cfg.singular}` : `Tambah ${cfg.singular}`}
+            </h2>
+            <p className="text-sm text-slate-500">
+              {editId
+                ? "Ubah datanya lalu simpan perubahan."
+                : "Isi form di bawah, data langsung tampil di website."}
+            </p>
+          </div>
         </div>
-      )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {cfg.fields.map((f) =>
+            f.type === "select" ? (
+              <select
+                key={f.name}
+                value={values[f.name]}
+                onChange={(e) => setField(f.name, e.target.value)}
+                className={inputCls}
+              >
+                {f.options.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            ) : f.type === "textarea" ? (
+              <textarea
+                key={f.name}
+                rows={f.rows || 4}
+                placeholder={f.placeholder}
+                value={values[f.name]}
+                onChange={(e) => setField(f.name, e.target.value)}
+                className={`${inputCls} resize-y`}
+              />
+            ) : (
+              <input
+                key={f.name}
+                placeholder={f.placeholder}
+                value={values[f.name]}
+                onChange={(e) => setField(f.name, e.target.value)}
+                className={inputCls}
+              />
+            )
+          )}
+
+          {notif && (
+            <div
+              className={`rounded-xl px-4 py-3 text-sm font-medium ${
+                notif.type === "ok"
+                  ? "bg-green-50 text-green-700 ring-1 ring-green-200"
+                  : "bg-red-50 text-red-700 ring-1 ring-red-200"
+              }`}
+            >
+              {notif.type === "ok" ? "✅ " : "⚠️ "}
+              {notif.text}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button type="submit" className={`${btnPrimary} flex-1`}>
+              {editId ? "Simpan Perubahan" : `Simpan ${cfg.singular}`}
+            </button>
+            {editId && (
+              <button type="button" onClick={reset} className={btnGhost}>
+                Batal
+              </button>
+            )}
+          </div>
+        </form>
+      </section>
+
+      {/* DAFTAR */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900">
+            {cfg.singular} yang ditambahkan
+          </h2>
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+            {list.length} data
+          </span>
+        </div>
+
+        {list.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 py-10 text-center text-sm text-slate-400">
+            Belum ada data tambahan.
+          </div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {list.map((it) => (
+              <div
+                key={it.id}
+                className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 transition hover:shadow-md ${
+                  editId === it.id
+                    ? "border-blue-400 bg-blue-50/50"
+                    : "border-slate-200 bg-slate-50"
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-slate-900">
+                    {cfg.itemTitle(it)}
+                  </p>
+                  <p className="text-xs text-slate-500">{cfg.itemSub(it)}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(it)}
+                    className={`${btnSmall} bg-blue-900 text-white hover:bg-blue-800`}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleHapus(it.id)}
+                    className={`${btnSmall} bg-red-50 text-red-700 hover:bg-red-100`}
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
 
-/* ---------------- EKSTRAKURIKULER ---------------- */
-function EkskulManager() {
-  const [list, setList] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [nama, setNama] = useState("");
-  const [kategori, setKategori] = useState("");
-  const [ikon, setIkon] = useState("");
-  const [deskripsi, setDeskripsi] = useState("");
-  const [pesan, setPesan] = useState("");
-
-  useEffect(() => {
-    setList(getStored("ekskul"));
-  }, []);
-
-  function reset() {
-    setEditId(null);
-    setNama("");
-    setKategori("");
-    setIkon("");
-    setDeskripsi("");
-  }
-
-  function handleEdit(x) {
-    setEditId(x.id);
-    setNama(x.nama);
-    setKategori(x.kategori);
-    setIkon(x.ikon);
-    setDeskripsi(x.deskripsi);
-    setPesan("");
-    naikKeAtas();
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!nama.trim() || !deskripsi.trim()) {
-      setPesan("Nama dan deskripsi wajib diisi");
-      return;
-    }
-
-    const data = {
-      nama: nama.trim(),
-      kategori: kategori.trim() || "Umum",
-      deskripsi: deskripsi.trim(),
-      ikon: ikon.trim() || "\u{1F3EB}",
-    };
-
-    if (editId) {
-      updateItem("ekskul", editId, data);
-      setPesan("Perubahan berhasil disimpan");
-    } else {
-      addItem("ekskul", data);
-      setPesan("Ekstrakurikuler berhasil disimpan");
-    }
-
-    setList(getStored("ekskul"));
-    reset();
-  }
-
-  function handleHapus(id) {
-    if (!confirm("Hapus ekstrakurikuler ini?")) return;
-    removeItem("ekskul", id);
-    setList(getStored("ekskul"));
-    if (editId === id) reset();
-  }
-
-  return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>
-        {editId ? "Edit Ekstrakurikuler" : "Tambah Ekstrakurikuler"}
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
-      >
-        <input
-          placeholder="Nama ekstrakurikuler"
-          value={nama}
-          onChange={(e) => setNama(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Kategori, contoh: Seni, Olahraga, Organisasi"
-          value={kategori}
-          onChange={(e) => setKategori(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Ikon (satu emoji), contoh: ⚽"
-          value={ikon}
-          onChange={(e) => setIkon(e.target.value)}
-          style={inputStyle}
-        />
-        <textarea
-          placeholder="Deskripsi singkat"
-          value={deskripsi}
-          onChange={(e) => setDeskripsi(e.target.value)}
-          rows={4}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
-        <Pesan pesan={pesan} />
-        <FormButtons editing={!!editId} labelTambah="Simpan Ekstrakurikuler" onBatal={reset} />
-      </form>
-
-      <h2 style={{ margin: "32px 0 12px" }}>Ekstrakurikuler yang ditambahkan ({list.length})</h2>
-      {list.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>Belum ada ekstrakurikuler tambahan.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {list.map((x) => (
-            <ListItem
-              key={x.id}
-              title={`${x.ikon} ${x.nama}`}
-              sub={x.kategori}
-              onEdit={() => handleEdit(x)}
-              onHapus={() => handleHapus(x.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------------- GURU ---------------- */
-function GuruManager() {
-  const [list, setList] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [nama, setNama] = useState("");
-  const [jabatan, setJabatan] = useState("");
-  const [mapel, setMapel] = useState("");
-  const [pesan, setPesan] = useState("");
-
-  useEffect(() => {
-    setList(getStored("guru"));
-  }, []);
-
-  function reset() {
-    setEditId(null);
-    setNama("");
-    setJabatan("");
-    setMapel("");
-  }
-
-  function handleEdit(g) {
-    setEditId(g.id);
-    setNama(g.nama);
-    setJabatan(g.jabatan);
-    setMapel(g.mapel === "-" ? "" : g.mapel);
-    setPesan("");
-    naikKeAtas();
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!nama.trim()) {
-      setPesan("Nama wajib diisi");
-      return;
-    }
-
-    const data = {
-      nama: nama.trim(),
-      jabatan: jabatan.trim() || "Guru",
-      mapel: mapel.trim() || "-",
-    };
-
-    if (editId) {
-      updateItem("guru", editId, data);
-      setPesan("Perubahan berhasil disimpan");
-    } else {
-      addItem("guru", data);
-      setPesan("Guru berhasil disimpan");
-    }
-
-    setList(getStored("guru"));
-    reset();
-  }
-
-  function handleHapus(id) {
-    if (!confirm("Hapus data guru ini?")) return;
-    removeItem("guru", id);
-    setList(getStored("guru"));
-    if (editId === id) reset();
-  }
-
-  return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Guru" : "Tambah Guru"}</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
-      >
-        <input
-          placeholder="Nama lengkap beserta gelar"
-          value={nama}
-          onChange={(e) => setNama(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Jabatan, contoh: Wali Kelas, Wakasek Kurikulum"
-          value={jabatan}
-          onChange={(e) => setJabatan(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Mata pelajaran (kosongkan jika tidak ada)"
-          value={mapel}
-          onChange={(e) => setMapel(e.target.value)}
-          style={inputStyle}
-        />
-        <Pesan pesan={pesan} />
-        <FormButtons editing={!!editId} labelTambah="Simpan Guru" onBatal={reset} />
-      </form>
-
-      <h2 style={{ margin: "32px 0 12px" }}>Guru yang ditambahkan ({list.length})</h2>
-      {list.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>Belum ada guru tambahan.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {list.map((g) => (
-            <ListItem
-              key={g.id}
-              title={g.nama}
-              sub={`${g.jabatan} · ${g.mapel}`}
-              onEdit={() => handleEdit(g)}
-              onHapus={() => handleHapus(g.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------------- PRESTASI ---------------- */
-function PrestasiManager() {
-  const [list, setList] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [title, setTitle] = useState("");
-  const [kategori, setKategori] = useState("");
-  const [tingkat, setTingkat] = useState("");
-  const [tahun, setTahun] = useState("");
-  const [ikon, setIkon] = useState("");
-  const [deskripsi, setDeskripsi] = useState("");
-  const [pesan, setPesan] = useState("");
-
-  useEffect(() => {
-    setList(getStored("prestasi"));
-  }, []);
-
-  function reset() {
-    setEditId(null);
-    setTitle("");
-    setKategori("");
-    setTingkat("");
-    setTahun("");
-    setIkon("");
-    setDeskripsi("");
-  }
-
-  function handleEdit(p) {
-    setEditId(p.id);
-    setTitle(p.title);
-    setKategori(p.kategori);
-    setTingkat(p.tingkat);
-    setTahun(p.tahun || "");
-    setIkon(p.ikon);
-    setDeskripsi(p.deskripsi);
-    setPesan("");
-    naikKeAtas();
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!title.trim() || !deskripsi.trim()) {
-      setPesan("Judul prestasi dan deskripsi wajib diisi");
-      return;
-    }
-
-    const data = {
-      title: title.trim(),
-      kategori: kategori.trim() || "Umum",
-      tingkat: tingkat.trim() || "Sekolah",
-      tahun: tahun.trim(),
-      deskripsi: deskripsi.trim(),
-      ikon: ikon.trim() || "\u{1F3C6}",
-    };
-
-    if (editId) {
-      updateItem("prestasi", editId, data);
-      setPesan("Perubahan berhasil disimpan");
-    } else {
-      addItem("prestasi", data);
-      setPesan("Prestasi berhasil disimpan");
-    }
-
-    setList(getStored("prestasi"));
-    reset();
-  }
-
-  function handleHapus(id) {
-    if (!confirm("Hapus prestasi ini?")) return;
-    removeItem("prestasi", id);
-    setList(getStored("prestasi"));
-    if (editId === id) reset();
-  }
-
-  return (
-    <div>
-      <h2 style={{ marginBottom: 16 }}>{editId ? "Edit Prestasi" : "Tambah Prestasi"}</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 600 }}
-      >
-        <input
-          placeholder="Judul prestasi, contoh: Juara 1 Lomba Debat"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Kategori, contoh: Akademik, Olahraga, Seni"
-          value={kategori}
-          onChange={(e) => setKategori(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Tingkat, contoh: Kabupaten, Provinsi, Nasional"
-          value={tingkat}
-          onChange={(e) => setTingkat(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Tahun raihan (opsional), contoh: 2026"
-          value={tahun}
-          onChange={(e) => setTahun(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          placeholder="Ikon (satu emoji, opsional), contoh: 🏆"
-          value={ikon}
-          onChange={(e) => setIkon(e.target.value)}
-          style={inputStyle}
-        />
-        <textarea
-          placeholder="Deskripsi singkat"
-          value={deskripsi}
-          onChange={(e) => setDeskripsi(e.target.value)}
-          rows={4}
-          style={{ ...inputStyle, resize: "vertical" }}
-        />
-        <Pesan pesan={pesan} />
-        <FormButtons editing={!!editId} labelTambah="Simpan Prestasi" onBatal={reset} />
-      </form>
-
-      <h2 style={{ margin: "32px 0 12px" }}>Prestasi yang ditambahkan ({list.length})</h2>
-      {list.length === 0 ? (
-        <p style={{ opacity: 0.6 }}>Belum ada prestasi tambahan.</p>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {list.map((p) => (
-            <ListItem
-              key={p.id}
-              title={`${p.ikon} ${p.title}`}
-              sub={`${p.kategori} · ${p.tingkat}`}
-              onEdit={() => handleEdit(p)}
-              onHapus={() => handleHapus(p.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ---------------- DASHBOARD ---------------- */
-const TABS = [
-  { key: "berita", label: "Berita" },
-  { key: "ekskul", label: "Ekstrakurikuler" },
-  { key: "guru", label: "Guru" },
-  { key: "prestasi", label: "Prestasi" },
-];
-
+/* ---------- DASHBOARD ---------- */
 function Dashboard({ onLogout }) {
   const [tab, setTab] = useState("berita");
 
   return (
-    <div style={{ padding: 40, maxWidth: 900, margin: "0 auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 24,
-        }}
-      >
-        <h1>Dashboard Admin</h1>
-        <div style={{ display: "flex", gap: 8 }}>
-          <a
-            href="/"
-            target="_blank"
-            rel="noreferrer"
-            style={{ ...buttonStyle, textDecoration: "none", display: "inline-block" }}
-          >
-            Lihat Website
-          </a>
-          <button onClick={onLogout} style={ghostStyle}>
-            Logout
-          </button>
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-200">
+      {/* Header */}
+      <header className="bg-blue-900 text-white shadow-lg">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+          <div className="flex items-center gap-3">
+            <img src="/Logo.jpg" alt="Logo" className="h-10 w-10 rounded" />
+            <div>
+              <h1 className="text-lg font-bold leading-tight">Dashboard Admin</h1>
+              <p className="text-xs text-blue-200">SMA Negeri 1 Temanggung</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+            >
+              Lihat Website ↗
+            </a>
+            <button
+              onClick={onLogout}
+              className="cursor-pointer rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 28, flexWrap: "wrap" }}>
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            style={{
-              ...buttonStyle,
-              background: tab === t.key ? "#1e3a8a" : "transparent",
-              color: tab === t.key ? "white" : "inherit",
-              border: "1px solid #1e3a8a",
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        {/* Tabs */}
+        <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl bg-white p-2 shadow-sm md:grid-cols-4">
+          {TAB_ORDER.map((key) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition ${
+                tab === key
+                  ? "bg-blue-900 text-white shadow"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <span>{SECTIONS[key].icon}</span>
+              {SECTIONS[key].tab}
+            </button>
+          ))}
+        </div>
 
-      {tab === "berita" && <BeritaManager />}
-      {tab === "ekskul" && <EkskulManager />}
-      {tab === "guru" && <GuruManager />}
-      {tab === "prestasi" && <PrestasiManager />}
+        <Manager key={tab} cfg={SECTIONS[tab]} />
+      </main>
     </div>
   );
 }
 
-/* ---------------- HALAMAN ADMIN (LOGIN) ---------------- */
+/* ---------- HALAMAN ADMIN (LOGIN) ---------- */
+function EyeIcon({ open }) {
+  return open ? (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetch("/api/session")
@@ -680,6 +457,7 @@ export default function AdminPage() {
   async function handleLogin(e) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const res = await fetch("/api/login", {
@@ -691,12 +469,15 @@ export default function AdminPage() {
 
       if (res.ok && data.ok) {
         setPassword("");
+        setShowPw(false);
         setLoggedIn(true);
       } else {
         setError(data.error || "Login gagal");
       }
     } catch {
       setError("Tidak bisa terhubung ke server");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -706,7 +487,11 @@ export default function AdminPage() {
   }
 
   if (checking) {
-    return <div style={{ padding: 40 }}>Memuat...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 text-slate-500">
+        Memuat...
+      </div>
+    );
   }
 
   if (loggedIn) {
@@ -714,19 +499,47 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 12, width: 300 }}>
-        <h1>Login Admin</h1>
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={inputStyle}
-        />
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" style={buttonStyle}>
-          Masuk
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-950 via-blue-900 to-blue-700 px-4">
+      <form
+        onSubmit={handleLogin}
+        className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-2xl"
+      >
+        <div className="mb-6 flex flex-col items-center text-center">
+          <img src="/Logo.jpg" alt="Logo" className="mb-4 h-16 w-16 rounded-xl shadow" />
+          <h1 className="text-2xl font-extrabold text-slate-900">Login Admin</h1>
+          <p className="mt-1 text-sm text-slate-500">SMA Negeri 1 Temanggung</p>
+        </div>
+
+        <div className="relative">
+          <input
+            type={showPw ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={`${inputCls} pr-12`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPw((s) => !s)}
+            aria-label={showPw ? "Sembunyikan password" : "Lihat password"}
+            className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-blue-700"
+          >
+            <EyeIcon open={showPw} />
+          </button>
+        </div>
+
+        {error && (
+          <p className="mt-3 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 ring-1 ring-red-200">
+            ⚠️ {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`${btnPrimary} mt-5 w-full disabled:opacity-60`}
+        >
+          {loading ? "Memeriksa..." : "Masuk"}
         </button>
       </form>
     </div>
