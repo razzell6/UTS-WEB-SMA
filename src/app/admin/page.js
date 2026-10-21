@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { addItem, getStored, removeItem, updateItem } from "../../lib/storage";
+import {
+  addItem,
+  getStored,
+  removeItem,
+  updateItem,
+  seedIfNeeded,
+  resetToBase,
+} from "../../lib/storage";
+import { beritaList } from "@/data/berita";
+import { ekskulList } from "@/data/ekskul";
+import { guruList } from "@/data/guru";
+import { prestasiList } from "@/data/prestasi";
 
 /* ---------- STYLE ---------- */
 const inputCls =
@@ -29,6 +40,7 @@ const SECTIONS = {
     icon: "\u{1F4F0}",
     singular: "Berita",
     storageKey: "berita",
+    base: beritaList,
     required: ["judul", "isi"],
     requiredMsg: "Judul dan isi berita wajib diisi",
     fields: [
@@ -80,6 +92,7 @@ const SECTIONS = {
     icon: "\u{1F3AF}",
     singular: "Ekstrakurikuler",
     storageKey: "ekskul",
+    base: ekskulList,
     required: ["nama", "deskripsi"],
     requiredMsg: "Nama dan deskripsi wajib diisi",
     fields: [
@@ -110,6 +123,7 @@ const SECTIONS = {
     icon: "\u{1F469}\u200D\u{1F3EB}",
     singular: "Guru",
     storageKey: "guru",
+    base: guruList,
     required: ["nama"],
     requiredMsg: "Nama wajib diisi",
     fields: [
@@ -137,6 +151,7 @@ const SECTIONS = {
     icon: "\u{1F3C6}",
     singular: "Prestasi",
     storageKey: "prestasi",
+    base: prestasiList,
     required: ["title", "deskripsi"],
     requiredMsg: "Judul prestasi dan deskripsi wajib diisi",
     fields: [
@@ -179,8 +194,9 @@ function Manager({ cfg }) {
   const [notif, setNotif] = useState(null);
 
   useEffect(() => {
+    seedIfNeeded(cfg.storageKey, cfg.base);
     setList(getStored(cfg.storageKey));
-  }, [cfg.storageKey]);
+  }, [cfg.storageKey, cfg.base]);
 
   function setField(name, val) {
     setValues((prev) => ({ ...prev, [name]: val }));
@@ -223,6 +239,18 @@ function Manager({ cfg }) {
     removeItem(cfg.storageKey, id);
     setList(getStored(cfg.storageKey));
     if (editId === id) reset();
+  }
+
+  function handleReset() {
+    if (
+      !confirm(
+        "Kembalikan ke data awal website? Semua perubahan di bagian ini akan hilang."
+      )
+    )
+      return;
+    resetToBase(cfg.storageKey, cfg.base);
+    setList(getStored(cfg.storageKey));
+    reset();
   }
 
   return (
@@ -308,18 +336,24 @@ function Manager({ cfg }) {
 
       {/* DAFTAR */}
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">
-            {cfg.singular} yang ditambahkan
-          </h2>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-            {list.length} data
-          </span>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-bold text-slate-900">Daftar {cfg.singular}</h2>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+              {list.length} data
+            </span>
+            <button
+              onClick={handleReset}
+              className={`${btnSmall} bg-slate-100 text-slate-600 hover:bg-slate-200`}
+            >
+              Reset ke data awal
+            </button>
+          </div>
         </div>
 
         {list.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 py-10 text-center text-sm text-slate-400">
-            Belum ada data tambahan.
+            Belum ada data.
           </div>
         ) : (
           <div className="flex flex-col gap-3">
@@ -439,6 +473,7 @@ function EyeIcon({ open }) {
 }
 
 export default function AdminPage() {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -463,11 +498,12 @@ export default function AdminPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
 
       if (res.ok && data.ok) {
+        setUsername("");
         setPassword("");
         setShowPw(false);
         setLoggedIn(true);
@@ -510,10 +546,20 @@ export default function AdminPage() {
           <p className="mt-1 text-sm text-slate-500">SMA Negeri 1 Temanggung</p>
         </div>
 
+        <input
+          type="text"
+          placeholder="Username atau email"
+          autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className={`${inputCls} mb-4`}
+        />
+
         <div className="relative">
           <input
             type={showPw ? "text" : "password"}
             placeholder="Password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={`${inputCls} pr-12`}
