@@ -473,7 +473,6 @@ function EyeIcon({ open }) {
 }
 
 export default function AdminPage() {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
@@ -498,12 +497,11 @@ export default function AdminPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ password }),
       });
       const data = await res.json();
 
       if (res.ok && data.ok) {
-        setUsername("");
         setPassword("");
         setShowPw(false);
         setLoggedIn(true);
@@ -545,15 +543,6 @@ export default function AdminPage() {
           <h1 className="text-2xl font-extrabold text-slate-900">Login Admin</h1>
           <p className="mt-1 text-sm text-slate-500">SMA Negeri 1 Temanggung</p>
         </div>
-
-        <input
-          type="text"
-          placeholder="Username atau email"
-          autoComplete="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className={`${inputCls} mb-4`}
-        />
 
         <div className="relative">
           <input
